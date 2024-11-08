@@ -1,0 +1,12 @@
+services:
+  stock:
+    build:
+      # context: https://github.com/RSO-2024-25-skupina-03/stock.git
+      context: ../stock
+    container_name: rso_stock
+    ports:
+      - "8000:8080"
+
+  mongo:
+    image: mongo
+    container_name: rso_mongo
