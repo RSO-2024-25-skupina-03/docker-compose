@@ -7,6 +7,13 @@ services:
     ports:
       - "8000:8080"
 
+  orders:
+    build:
+      context: ../orders
+    container_name: rso_orders
+    ports:
+      - "8001:3000"
+
   mongo:
     image: mongo
     container_name: rso_mongo
