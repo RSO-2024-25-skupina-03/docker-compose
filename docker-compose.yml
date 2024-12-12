@@ -17,3 +17,7 @@ services:
   mongo:
     image: mongo
     container_name: rso_mongo
+
+  rabbitmq:
+    image: rabbitmq:4
+    container_name: rso_rabbitmq
