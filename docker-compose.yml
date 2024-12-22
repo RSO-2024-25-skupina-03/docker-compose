@@ -19,5 +19,14 @@ services:
     container_name: rso_mongo
 
   rabbitmq:
-    image: rabbitmq:4
+    image: rabbitmq:4-management-alpine
     container_name: rso_rabbitmq
+    ports:
+      - "15672:15672"
+
+  test-order-producer:
+    build:
+      context: ../test-order-producer
+    container_name: rso_test_order_producer
+    ports:
+      - "8002:8080"
