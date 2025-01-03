@@ -30,3 +30,10 @@ services:
     container_name: rso_test_order_producer
     ports:
       - "8002:8080"
+
+  cart:
+    build:
+      context: ../cart
+    container_name: rso_cart
+    ports:
+      - "8003:8080"
