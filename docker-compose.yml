@@ -19,7 +19,7 @@ services:
     depends_on:
       - mongo
       - rabbitmq
-    
+
   authentication:
     build:
       context: ../authentication
@@ -56,3 +56,16 @@ services:
     container_name: rso_cart
     ports:
       - "8003:8080"
+
+  prometheus:
+    build:
+      context: ../prometheus
+    container_name: rso_prometheus
+    networks:
+      - prometheus
+    ports:
+      - "9090:9090"
+
+networks:
+  prometheus:
+    driver: bridge
