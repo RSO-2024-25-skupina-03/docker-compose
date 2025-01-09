@@ -4,6 +4,8 @@ services:
       # context: https://github.com/RSO-2024-25-skupina-03/stock.git
       context: ../stock
     container_name: rso_stock
+    networks:
+      - prometheus
     ports:
       - "8000:8080"
 
@@ -11,6 +13,8 @@ services:
     build:
       context: ../orders
     container_name: rso_orders
+    networks:
+      - prometheus
     ports:
       - "8001:3000"
     environment:
@@ -24,6 +28,8 @@ services:
     build:
       context: ../authentication
     container_name: rso_authentication
+    networks:
+      - prometheus
     ports:
       - "8004:3000"
     depends_on:
@@ -35,11 +41,15 @@ services:
 
   mongo:
     image: mongo
+    networks:
+      - prometheus
     container_name: rso_mongo
 
   rabbitmq:
     image: rabbitmq:4-management-alpine
     container_name: rso_rabbitmq
+    networks:
+      - prometheus
     ports:
       - "15672:15672"
 
@@ -47,6 +57,8 @@ services:
     build:
       context: ../test-order-producer
     container_name: rso_test_order_producer
+    networks:
+      - prometheus
     ports:
       - "8002:8080"
 
@@ -54,6 +66,8 @@ services:
     build:
       context: ../cart
     container_name: rso_cart
+    networks:
+      - prometheus
     ports:
       - "8003:8080"
 
