@@ -24,6 +24,15 @@ services:
       - mongo
       - rabbitmq
 
+  cart:
+    build:
+      context: ../cart
+    container_name: rso_cart
+    networks:
+      - prometheus
+    ports:
+      - "8002:8080"
+
   authentication:
     build:
       context: ../authentication
@@ -31,7 +40,7 @@ services:
     networks:
       - prometheus
     ports:
-      - "8004:3000"
+      - "8003:3000"
     depends_on:
       - mongo
     environment:
@@ -53,24 +62,6 @@ services:
     ports:
       - "15672:15672"
 
-  test-order-producer:
-    build:
-      context: ../test-order-producer
-    container_name: rso_test_order_producer
-    networks:
-      - prometheus
-    ports:
-      - "8002:8080"
-
-  cart:
-    build:
-      context: ../cart
-    container_name: rso_cart
-    networks:
-      - prometheus
-    ports:
-      - "8003:8080"
-
   prometheus:
     build:
       context: ../prometheus
@@ -80,6 +71,27 @@ services:
     ports:
       - "9090:9090"
 
+  loki:
+    build:
+      context: ../loki
+    container_name: rso_loki
+    environment:
+      config.file: /etc/loki_config.yml
+    networks:
+      - prometheus
+    ports:
+      - "3100:3100"
+
+  grafana:
+    build:
+      context: ../grafana
+    container_name: rso_grafana
+    environment:
+      - GF_LOG_LEVEL=debug
+    networks:
+      - prometheus
+    ports:
+      - "3000:3000"
 networks:
   prometheus:
     driver: bridge
