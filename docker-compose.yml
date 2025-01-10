@@ -7,9 +7,15 @@ services:
     healthcheck:
       test: "curl -f http://stock:8080/"
     networks:
-      - prometheus
-    ports:
-      - "8000:8080"
+      - rso
+    # ports:
+    #   - "8000:8080"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.stock.entrypoints=web"
+      - "traefik.http.middlewares.stock-strip.stripPrefix.prefixes=/api/stock"
+      - "traefik.http.routers.stock.middlewares=stock-strip"
+      - "traefik.http.routers.stock.rule=PathPrefix(`/api/stock`)"
 
   orders:
     build:
@@ -18,15 +24,21 @@ services:
     healthcheck:
       test: "curl -f http://orders:3000/"
     networks:
-      - prometheus
-    ports:
-      - "8001:3000"
+      - rso
+    # ports:
+    #   - "8001:3000"
     environment:
       - NODE_ENV=test
       - MONGODB_URI=mongodb://mongo:27017/Orders
     depends_on:
       - mongo
       - rabbitmq
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.orders.entrypoints=web"
+      - "traefik.http.middlewares.orders-strip.stripPrefix.prefixes=/api/orders"
+      - "traefik.http.routers.orders.middlewares=orders-strip"
+      - "traefik.http.routers.orders.rule=PathPrefix(`/api/orders`)"
 
   cart:
     build:
@@ -35,9 +47,17 @@ services:
     healthcheck:
       test: "curl -f http://cart:8080/"
     networks:
-      - prometheus
-    ports:
-      - "8002:8080"
+      - rso
+    # ports:
+    #   - "8002:8080"
+    depends_on:
+      - mongo
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.cart.entrypoints=web"
+      - "traefik.http.middlewares.cart-strip.stripPrefix.prefixes=/api/cart"
+      - "traefik.http.routers.cart.middlewares=cart-strip"
+      - "traefik.http.routers.cart.rule=PathPrefix(`/api/cart`)"
 
   authentication:
     build:
@@ -46,9 +66,9 @@ services:
     healthcheck:
       test: "curl -f http://authentication:3000/"
     networks:
-      - prometheus
-    ports:
-      - "8003:3000"
+      - rso
+    # ports:
+    #   - "8003:3000"
     depends_on:
       - mongo
     environment:
@@ -56,29 +76,48 @@ services:
       - MONGODB_URI=mongodb://mongo:27017/Authentication
       - JWT_SECRET=superSecretPassword
       - ADMIN_KEY=superAdminKey
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.authentication.entrypoints=web"
+      - "traefik.http.middlewares.authentication-strip.stripPrefix.prefixes=/api/authentication"
+      - "traefik.http.routers.authentication.middlewares=authentication-strip"
+      - "traefik.http.routers.authentication.rule=PathPrefix(`/api/authentication`)"
 
   mongo:
     image: mongo
     networks:
-      - prometheus
+      - rso
     container_name: rso_mongo
 
   rabbitmq:
     image: rabbitmq:4-management-alpine
     container_name: rso_rabbitmq
     networks:
-      - prometheus
-    ports:
-      - "15672:15672"
+      - rso
+    # ports:
+    #   - "15672:15672"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.services.rabbitmq.loadbalancer.server.port=15672"
+      - "traefik.http.routers.rabbitmq.entrypoints=web"
+      - "traefik.http.middlewares.rabbitmq-strip.stripPrefix.prefixes=/rabbitmq"
+      - "traefik.http.routers.rabbitmq.middlewares=rabbitmq-strip"
+      - "traefik.http.routers.rabbitmq.rule=PathPrefix(`/rabbitmq`)"
 
   prometheus:
     build:
       context: ../prometheus
     container_name: rso_prometheus
     networks:
-      - prometheus
-    ports:
-      - "9090:9090"
+      - rso
+    # ports:
+    #   - "9090:9090"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.prometheus.entrypoints=web"
+      - "traefik.http.middlewares.prometheus-strip.stripPrefix.prefixes=/prometheus"
+      - "traefik.http.routers.prometheus.middlewares=prometheus-strip"
+      - "traefik.http.routers.prometheus.rule=PathPrefix(`/prometheus`)"
 
   loki:
     build:
@@ -87,9 +126,9 @@ services:
     environment:
       config.file: /etc/loki_config.yml
     networks:
-      - prometheus
-    ports:
-      - "3100:3100"
+      - rso
+    # ports:
+    #   - "3100:3100"
 
   grafana:
     build:
@@ -97,10 +136,34 @@ services:
     container_name: rso_grafana
     environment:
       - GF_LOG_LEVEL=debug
+      - GF_SERVER_ROOT_URL=$GRAFANA_BASE_URL
     networks:
-      - prometheus
+      - rso
+    # ports:
+    #   - "3000:3000"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.grafana.entrypoints=web"
+      - "traefik.http.middlewares.grafana-strip.stripPrefix.prefixes=/grafana"
+      - "traefik.http.routers.grafana.middlewares=grafana-strip"
+      - "traefik.http.routers.grafana.rule=PathPrefix(`/grafana`)"
+
+  traefik:
+    image: traefik:v3.3
+    container_name: rso_traefik
+    command:
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
     ports:
-      - "3000:3000"
+      - "80:80"
+      - "8080:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - rso
+
 networks:
-  prometheus:
+  rso:
     driver: bridge
