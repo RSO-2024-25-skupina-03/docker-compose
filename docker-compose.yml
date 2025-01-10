@@ -4,6 +4,8 @@ services:
       # context: https://github.com/RSO-2024-25-skupina-03/stock.git
       context: ../stock
     container_name: rso_stock
+    healthcheck:
+      test: "curl -f http://stock:8080/"
     networks:
       - prometheus
     ports:
@@ -13,6 +15,8 @@ services:
     build:
       context: ../orders
     container_name: rso_orders
+    healthcheck:
+      test: "curl -f http://orders:3000/"
     networks:
       - prometheus
     ports:
@@ -28,6 +32,8 @@ services:
     build:
       context: ../cart
     container_name: rso_cart
+    healthcheck:
+      test: "curl -f http://cart:8080/"
     networks:
       - prometheus
     ports:
@@ -37,6 +43,8 @@ services:
     build:
       context: ../authentication
     container_name: rso_authentication
+    healthcheck:
+      test: "curl -f http://authentication:3000/"
     networks:
       - prometheus
     ports:
