@@ -8,8 +8,8 @@ services:
       test: "curl -f http://frontend:4200/"
     networks:
       - rso
-    # ports:
-    #   - "8888:80"
+    ports:
+      - "8888:80"
     labels:
       - "kompose.service.type=clusterip"
       - "traefik.enable=true"
@@ -27,8 +27,8 @@ services:
       test: "curl -f http://stock:8080/"
     networks:
       - rso
-    # ports:
-    #   - "8000:8080"
+    ports:
+      - "8000:8080"
     labels:
       - "kompose.service.type=clusterip"
       - "traefik.enable=true"
@@ -47,8 +47,8 @@ services:
       test: "curl -f http://orders:3000/"
     networks:
       - rso
-    # ports:
-    #   - "8001:3000"
+    ports:
+      - "8001:3000"
     environment:
       - NODE_ENV=test
       - MONGODB_URI=mongodb://mongo:27017/Orders
@@ -73,8 +73,8 @@ services:
       test: "curl -f http://cart:8080/"
     networks:
       - rso
-    # ports:
-    #   - "8002:8080"
+    ports:
+      - "8002:8080"
     depends_on:
       - mongo
     labels:
@@ -95,8 +95,8 @@ services:
       test: "curl -f http://authentication:3000/"
     networks:
       - rso
-    # ports:
-    #   - "8003:3000"
+    ports:
+      - "8003:3000"
     depends_on:
       - mongo
     environment:
@@ -120,16 +120,16 @@ services:
     container_name: rso_mongo
     labels:
       - "kompose.service.type=clusterip"
-    # ports:
-    #   - "27017:27017"
+    ports:
+      - "27017:27017"
 
   rabbitmq:
     image: rabbitmq:4-management-alpine
     container_name: rso_rabbitmq
     networks:
       - rso
-    # ports:
-    #   - "15672:15672"
+    ports:
+      - "15672:15672"
     labels:
       - "kompose.service.type=clusterip"
       - "traefik.enable=true"
@@ -147,8 +147,8 @@ services:
     container_name: rso_prometheus
     networks:
       - rso
-    # ports:
-    #   - "9090:9090"
+    ports:
+      - "9090:9090"
     labels:
       - "kompose.service.type=clusterip"
       - "traefik.enable=true"
@@ -170,8 +170,8 @@ services:
     labels:
       - "kompose.service.type=clusterip"
       - "traefik.ingress.kubernetes.io/service.nativelb=true"
-    # ports:
-    #   - "3100:3100"
+    ports:
+      - "3100:3100"
 
   grafana:
     build:
@@ -183,8 +183,8 @@ services:
       - GF_SERVER_ROOT_URL=http://localhost/grafana
     networks:
       - rso
-    # ports:
-    #   - "3000:3000"
+    ports:
+      - "3000:3000"
     labels:
       - "kompose.service.type=clusterip"
       - "traefik.enable=true"
