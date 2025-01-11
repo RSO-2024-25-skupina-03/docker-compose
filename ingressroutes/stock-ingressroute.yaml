@@ -1,0 +1,15 @@
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: stock-ingress
+  namespace: default
+spec:
+  entryPoints:
+    - web
+  routes:
+    - match: Host(`4.182.90.110.nip.io`) && PathPrefix(`/api/stock`)
+      kind: Rule
+      services:
+        - name: stock
+          namespace: default
+          port: 8000

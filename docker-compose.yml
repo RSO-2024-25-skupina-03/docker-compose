@@ -1,3 +1,10 @@
+x-variables:
+  DOMAIN: &domain 4.182.90.110
+  # DOMAIN: &domain localhost
+  GRAFANA_BASE_URL: &grafana_base_url http://4.182.90.110/grafana
+  # GRAFANA_BASE_URL: &grafana_base_url http://localhost/grafana
+  NODE_ENV: &node_env test
+
 services:
   stock:
     build:
@@ -8,8 +15,8 @@ services:
       test: "curl -f http://stock:8080/"
     networks:
       - rso
-    # ports:
-    #   - "8000:8080"
+    ports:
+      - "8000:8080"
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.stock.entrypoints=web"
@@ -25,10 +32,11 @@ services:
       test: "curl -f http://orders:3000/"
     networks:
       - rso
-    # ports:
-    #   - "8001:3000"
+    ports:
+      - "8001:3000"
     environment:
-      - NODE_ENV=test
+      - NODE_ENV=*node_env
+      - DOMAIN=*domain
       - MONGODB_URI=mongodb://mongo:27017/Orders
     depends_on:
       - mongo
@@ -48,8 +56,8 @@ services:
       test: "curl -f http://cart:8080/"
     networks:
       - rso
-    # ports:
-    #   - "8002:8080"
+    ports:
+      - "8002:8080"
     depends_on:
       - mongo
     labels:
@@ -67,12 +75,13 @@ services:
       test: "curl -f http://authentication:3000/"
     networks:
       - rso
-    # ports:
-    #   - "8003:3000"
+    ports:
+      - "8003:3000"
     depends_on:
       - mongo
     environment:
-      - NODE_ENV=test
+      - NODE_ENV=*node_env
+      - DOMAIN=*domain
       - MONGODB_URI=mongodb://mongo:27017/Authentication
       - JWT_SECRET=superSecretPassword
       - ADMIN_KEY=superAdminKey
@@ -94,8 +103,8 @@ services:
     container_name: rso_rabbitmq
     networks:
       - rso
-    # ports:
-    #   - "15672:15672"
+    ports:
+      - "15672:15672"
     labels:
       - "traefik.enable=true"
       - "traefik.http.services.rabbitmq.loadbalancer.server.port=15672"
@@ -110,8 +119,8 @@ services:
     container_name: rso_prometheus
     networks:
       - rso
-    # ports:
-    #   - "9090:9090"
+    ports:
+      - "9090:9090"
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.prometheus.entrypoints=web"
@@ -127,8 +136,8 @@ services:
       config.file: /etc/loki_config.yml
     networks:
       - rso
-    # ports:
-    #   - "3100:3100"
+    ports:
+      - "3100:3100"
 
   grafana:
     build:
@@ -136,11 +145,12 @@ services:
     container_name: rso_grafana
     environment:
       - GF_LOG_LEVEL=debug
-      - GF_SERVER_ROOT_URL=$GRAFANA_BASE_URL
+      # - GF_SERVER_ROOT_URL=$GRAFANA_BASE_URL
+      - GF_SERVER_ROOT_URL=*grafana_base_url
     networks:
       - rso
-    # ports:
-    #   - "3000:3000"
+    ports:
+      - "3000:3000"
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.grafana.entrypoints=web"

@@ -1,0 +1,15 @@
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: orders-ingress
+  namespace: default
+spec:
+  entryPoints:
+    - web
+  routes:
+    - match: Host(`4.182.90.110.nip.io`) && PathPrefix(`/api/orders`)
+      kind: Rule
+      services:
+        - name: orders
+          namespace: default
+          port: 8001

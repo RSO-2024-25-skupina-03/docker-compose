@@ -1,0 +1,15 @@
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: prometheus-ingress
+  namespace: default
+spec:
+  entryPoints:
+    - web
+  routes:
+    - match: Host(`4.182.90.110.nip.io`) && PathPrefix(`/prometheus`)
+      kind: Rule
+      services:
+        - name: prometheus
+          namespace: default
+          port: 9090

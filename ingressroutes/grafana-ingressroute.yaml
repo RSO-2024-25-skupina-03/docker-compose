@@ -1,0 +1,15 @@
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: grafana-ingress
+  namespace: default
+spec:
+  entryPoints:
+    - web
+  routes:
+    - match: Host(`4.182.90.110.nip.io`) && PathPrefix(`/grafana`)
+      kind: Rule
+      services:
+        - name: grafana
+          namespace: default
+          port: 3000
