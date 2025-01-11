@@ -1,17 +1,37 @@
 services:
+  frontend:
+    build:
+      context: ../frontend
+    image: macjestoritve.azurecr.io/frontend
+    container_name: rso_frontend
+    healthcheck:
+      test: "curl -f http://frontend:4200/"
+    networks:
+      - rso
+    ports:
+      - "8002:4200"
+    labels:
+      - "kompose.service.type=clusterip"
+      - "traefik.enable=true"
+      - "traefik.ingress.kubernetes.io/service.nativelb=true"
+      - "traefik.http.routers.frontend.entrypoints=web"
+
   stock:
     build:
       # context: https://github.com/RSO-2024-25-skupina-03/stock.git
       context: ../stock
+    image: macjestoritve.azurecr.io/stock
     container_name: rso_stock
     healthcheck:
       test: "curl -f http://stock:8080/"
     networks:
       - rso
-    # ports:
-    #   - "8000:8080"
+    ports:
+      - "8000:8080"
     labels:
+      - "kompose.service.type=clusterip"
       - "traefik.enable=true"
+      - "traefik.ingress.kubernetes.io/service.nativelb=true"
       - "traefik.http.routers.stock.entrypoints=web"
       - "traefik.http.middlewares.stock-strip.stripPrefix.prefixes=/api/stock"
       - "traefik.http.routers.stock.middlewares=stock-strip"
@@ -20,13 +40,14 @@ services:
   orders:
     build:
       context: ../orders
+    image: macjestoritve.azurecr.io/orders
     container_name: rso_orders
     healthcheck:
       test: "curl -f http://orders:3000/"
     networks:
       - rso
-    # ports:
-    #   - "8001:3000"
+    ports:
+      - "8001:3000"
     environment:
       - NODE_ENV=test
       - MONGODB_URI=mongodb://mongo:27017/Orders
@@ -34,7 +55,9 @@ services:
       - mongo
       - rabbitmq
     labels:
+      - "kompose.service.type=clusterip"
       - "traefik.enable=true"
+      - "traefik.ingress.kubernetes.io/service.nativelb=true"
       - "traefik.http.routers.orders.entrypoints=web"
       - "traefik.http.middlewares.orders-strip.stripPrefix.prefixes=/api/orders"
       - "traefik.http.routers.orders.middlewares=orders-strip"
@@ -43,17 +66,20 @@ services:
   cart:
     build:
       context: ../cart
+    image: macjestoritve.azurecr.io/cart
     container_name: rso_cart
     healthcheck:
       test: "curl -f http://cart:8080/"
     networks:
       - rso
-    # ports:
-    #   - "8002:8080"
+    ports:
+      - "8002:8080"
     depends_on:
       - mongo
     labels:
+      - "kompose.service.type=clusterip"
       - "traefik.enable=true"
+      - "traefik.ingress.kubernetes.io/service.nativelb=true"
       - "traefik.http.routers.cart.entrypoints=web"
       - "traefik.http.middlewares.cart-strip.stripPrefix.prefixes=/api/cart"
       - "traefik.http.routers.cart.middlewares=cart-strip"
@@ -62,13 +88,14 @@ services:
   authentication:
     build:
       context: ../authentication
+    image: macjestoritve.azurecr.io/authentication
     container_name: rso_authentication
     healthcheck:
       test: "curl -f http://authentication:3000/"
     networks:
       - rso
-    # ports:
-    #   - "8003:3000"
+    ports:
+      - "8003:3000"
     depends_on:
       - mongo
     environment:
@@ -77,10 +104,12 @@ services:
       - JWT_SECRET=superSecretPassword
       - ADMIN_KEY=superAdminKey
     labels:
+      - "kompose.service.type=clusterip"
       - "traefik.enable=true"
+      - "traefik.ingress.kubernetes.io/service.nativelb=true"
       - "traefik.http.routers.authentication.entrypoints=web"
-      - "traefik.http.middlewares.authentication-strip.stripPrefix.prefixes=/api/authentication"
-      - "traefik.http.routers.authentication.middlewares=authentication-strip"
+      - "traefik.http.middlewares.auth-strip.stripPrefix.prefixes=/api/authentication"
+      - "traefik.http.routers.authentication.middlewares=auth-strip"
       - "traefik.http.routers.authentication.rule=PathPrefix(`/api/authentication`)"
 
   mongo:
@@ -88,16 +117,22 @@ services:
     networks:
       - rso
     container_name: rso_mongo
+    labels:
+      - "kompose.service.type=clusterip"
+    ports:
+      - "27017:27017"
 
   rabbitmq:
     image: rabbitmq:4-management-alpine
     container_name: rso_rabbitmq
     networks:
       - rso
-    # ports:
-    #   - "15672:15672"
+    ports:
+      - "15672:15672"
     labels:
+      - "kompose.service.type=clusterip"
       - "traefik.enable=true"
+      - "traefik.ingress.kubernetes.io/service.nativelb=true"
       - "traefik.http.services.rabbitmq.loadbalancer.server.port=15672"
       - "traefik.http.routers.rabbitmq.entrypoints=web"
       - "traefik.http.middlewares.rabbitmq-strip.stripPrefix.prefixes=/rabbitmq"
@@ -107,13 +142,16 @@ services:
   prometheus:
     build:
       context: ../prometheus
+    image: macjestoritve.azurecr.io/prometheus
     container_name: rso_prometheus
     networks:
       - rso
-    # ports:
-    #   - "9090:9090"
+    ports:
+      - "9090:9090"
     labels:
+      - "kompose.service.type=clusterip"
       - "traefik.enable=true"
+      - "traefik.ingress.kubernetes.io/service.nativelb=true"
       - "traefik.http.routers.prometheus.entrypoints=web"
       - "traefik.http.middlewares.prometheus-strip.stripPrefix.prefixes=/prometheus"
       - "traefik.http.routers.prometheus.middlewares=prometheus-strip"
@@ -122,27 +160,34 @@ services:
   loki:
     build:
       context: ../loki
+    image: macjestoritve.azurecr.io/loki
     container_name: rso_loki
     environment:
       config.file: /etc/loki_config.yml
     networks:
       - rso
-    # ports:
-    #   - "3100:3100"
+    labels:
+      - "kompose.service.type=clusterip"
+      - "traefik.ingress.kubernetes.io/service.nativelb=true"
+    ports:
+      - "3100:3100"
 
   grafana:
     build:
       context: ../grafana
+    image: macjestoritve.azurecr.io/grafana
     container_name: rso_grafana
     environment:
       - GF_LOG_LEVEL=debug
-      - GF_SERVER_ROOT_URL=$GRAFANA_BASE_URL
+      - GF_SERVER_ROOT_URL=http://localhost/grafana
     networks:
       - rso
-    # ports:
-    #   - "3000:3000"
+    ports:
+      - "3000:3000"
     labels:
+      - "kompose.service.type=clusterip"
       - "traefik.enable=true"
+      - "traefik.ingress.kubernetes.io/service.nativelb=true"
       - "traefik.http.routers.grafana.entrypoints=web"
       - "traefik.http.middlewares.grafana-strip.stripPrefix.prefixes=/grafana"
       - "traefik.http.routers.grafana.middlewares=grafana-strip"
@@ -153,8 +198,9 @@ services:
     container_name: rso_traefik
     command:
       - "--api.insecure=true"
-      - "--providers.docker=true"
-      - "--providers.docker.exposedbydefault=false"
+      - "--api.dashboard=true"
+      - "--providers.kubernetesIngress=true"
+      - "--entrypoints.traefik.address=:8080"
       - "--entrypoints.web.address=:80"
     ports:
       - "80:80"
@@ -163,6 +209,13 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     networks:
       - rso
+    labels:
+      - "kompose.service.type=loadbalancer"
+      - "kompose.service.expose=true"
+      - "kompose.service.expose.ingress-class-name=traefik"
+      - "traefik.enable=true"
+      - "traefik.http.routers.traefik.entrypoints=traefik"
+      - "traefik.http.routers.traefik.service=api@internal"
 
 networks:
   rso:
