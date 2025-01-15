@@ -122,6 +122,8 @@ services:
       - "kompose.service.type=clusterip"
     ports:
       - "27017:27017"
+    volumes:
+      - ./db:/data/db
 
   rabbitmq:
     image: rabbitmq:4-management-alpine
