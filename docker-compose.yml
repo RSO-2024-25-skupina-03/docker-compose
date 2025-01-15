@@ -13,7 +13,7 @@ services:
     labels:
       - "kompose.service.type=clusterip"
       - "traefik.enable=true"
-      - "traefik.ingress.kubernetes.io/service.nativelb=true"
+      # - "traefik.ingress.kubernetes.io/service.nativelb=true"
       - "traefik.http.routers.frontend.entrypoints=web"
       - "traefik.http.routers.stock.rule=PathPrefix(`/`)"
 
@@ -32,7 +32,7 @@ services:
     labels:
       - "kompose.service.type=clusterip"
       - "traefik.enable=true"
-      - "traefik.ingress.kubernetes.io/service.nativelb=true"
+      # - "traefik.ingress.kubernetes.io/service.nativelb=true"
       - "traefik.http.routers.stock.entrypoints=web"
       - "traefik.http.middlewares.stock-strip.stripPrefix.prefixes=/api/stock"
       - "traefik.http.routers.stock.middlewares=stock-strip"
@@ -51,14 +51,14 @@ services:
       - "8001:3000"
     environment:
       - NODE_ENV=test
-      - MONGODB_URI=mongodb://mongo:27017/Orders
+      - MONGODB_URI=mongodb://mongo:27017
     depends_on:
       - mongo
       - rabbitmq
     labels:
       - "kompose.service.type=clusterip"
       - "traefik.enable=true"
-      - "traefik.ingress.kubernetes.io/service.nativelb=true"
+      # - "traefik.ingress.kubernetes.io/service.nativelb=true"
       - "traefik.http.routers.orders.entrypoints=web"
       - "traefik.http.middlewares.orders-strip.stripPrefix.prefixes=/api/orders"
       - "traefik.http.routers.orders.middlewares=orders-strip"
@@ -80,7 +80,7 @@ services:
     labels:
       - "kompose.service.type=clusterip"
       - "traefik.enable=true"
-      - "traefik.ingress.kubernetes.io/service.nativelb=true"
+      # - "traefik.ingress.kubernetes.io/service.nativelb=true"
       - "traefik.http.routers.cart.entrypoints=web"
       - "traefik.http.middlewares.cart-strip.stripPrefix.prefixes=/api/cart"
       - "traefik.http.routers.cart.middlewares=cart-strip"
@@ -101,13 +101,13 @@ services:
       - mongo
     environment:
       - NODE_ENV=test
-      - MONGODB_URI=mongodb://mongo:27017/Authentication
+      - MONGODB_URI=mongodb://mongo:27017
       - JWT_SECRET=superSecretPassword
       - ADMIN_KEY=superAdminKey
     labels:
       - "kompose.service.type=clusterip"
       - "traefik.enable=true"
-      - "traefik.ingress.kubernetes.io/service.nativelb=true"
+      # - "traefik.ingress.kubernetes.io/service.nativelb=true"
       - "traefik.http.routers.authentication.entrypoints=web"
       - "traefik.http.middlewares.auth-strip.stripPrefix.prefixes=/api/authentication"
       - "traefik.http.routers.authentication.middlewares=auth-strip"
@@ -122,8 +122,6 @@ services:
       - "kompose.service.type=clusterip"
     ports:
       - "27017:27017"
-    volumes:
-      - ./db:/data/db
 
   rabbitmq:
     image: rabbitmq:4-management-alpine
@@ -135,7 +133,7 @@ services:
     labels:
       - "kompose.service.type=clusterip"
       - "traefik.enable=true"
-      - "traefik.ingress.kubernetes.io/service.nativelb=true"
+      # - "traefik.ingress.kubernetes.io/service.nativelb=true"
       - "traefik.http.services.rabbitmq.loadbalancer.server.port=15672"
       - "traefik.http.routers.rabbitmq.entrypoints=web"
       - "traefik.http.middlewares.rabbitmq-strip.stripPrefix.prefixes=/rabbitmq"
@@ -154,7 +152,7 @@ services:
     labels:
       - "kompose.service.type=clusterip"
       - "traefik.enable=true"
-      - "traefik.ingress.kubernetes.io/service.nativelb=true"
+      # - "traefik.ingress.kubernetes.io/service.nativelb=true"
       - "traefik.http.routers.prometheus.entrypoints=web"
       - "traefik.http.middlewares.prometheus-strip.stripPrefix.prefixes=/prometheus"
       - "traefik.http.routers.prometheus.middlewares=prometheus-strip"
@@ -171,7 +169,7 @@ services:
       - rso
     labels:
       - "kompose.service.type=clusterip"
-      - "traefik.ingress.kubernetes.io/service.nativelb=true"
+      # - "traefik.ingress.kubernetes.io/service.nativelb=true"
     ports:
       - "3100:3100"
 
@@ -190,7 +188,7 @@ services:
     labels:
       - "kompose.service.type=clusterip"
       - "traefik.enable=true"
-      - "traefik.ingress.kubernetes.io/service.nativelb=true"
+        # - "traefik.ingress.kubernetes.io/service.nativelb=true"
       - "traefik.http.routers.grafana.entrypoints=web"
       - "traefik.http.middlewares.grafana-strip.stripPrefix.prefixes=/grafana"
       - "traefik.http.routers.grafana.middlewares=grafana-strip"
@@ -202,7 +200,7 @@ services:
     command:
       - "--api.insecure=true"
       - "--api.dashboard=true"
-      - "--providers.kubernetesIngress=true"
+      # - "--providers.kubernetesIngress=true"
       - "--entrypoints.traefik.address=:8080"
       - "--entrypoints.web.address=:80"
     ports:
