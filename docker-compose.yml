@@ -114,10 +114,6 @@ services:
     networks:
       - rso
     container_name: rso_mongo
-    labels:
-      - "kompose.service.type=clusterip"
-    # ports:
-    #   - "27017:27017"
     volumes:
       - ./db:/data/db
 
@@ -197,7 +193,7 @@ services:
     command:
       - "--api.insecure=true"
       - "--api.dashboard=true"
-      # - "--providers.docker=true"
+      - "--providers.docker=true"
       - "--entrypoints.traefik.address=:8080"
       - "--entrypoints.web.address=:80"
     ports:
