@@ -51,6 +51,7 @@ services:
     environment:
       - NODE_ENV=test
       - MONGODB_URI=mongodb://mongo:27017
+      - API_GATEWAY_URL=http://localhost
     depends_on:
       - mongo
       - rabbitmq
