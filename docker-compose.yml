@@ -62,6 +62,31 @@ services:
       - "traefik.http.middlewares.orders-strip.stripPrefix.prefixes=/api/orders"
       - "traefik.http.routers.orders.middlewares=orders-strip"
       - "traefik.http.routers.orders.rule=PathPrefix(`/api/orders`)"
+  
+  notifications:
+    build:
+      context: ../notifications
+    image: macjestoritve.azurecr.io/notifications
+    container_name: rso_notifications
+    healthcheck:
+      test: "curl -f http://notifications:3000/"
+    networks:
+      - rso
+    # ports:
+    #   - "8004:3000"
+    environment:
+      - NODE_ENV=test
+      - MONGODB_URI=mongodb://mongo:27017
+    depends_on:
+      - mongo
+      - rabbitmq
+    labels:
+      - "traefik.enable=true"
+      # - "traefik.ingress.kubernetes.io/service.nativelb=true"
+      - "traefik.http.routers.notifications.entrypoints=web"
+      - "traefik.http.middlewares.notifications-strip.stripPrefix.prefixes=/api/notifications"
+      - "traefik.http.routers.notifications.middlewares=notifications-strip"
+      - "traefik.http.routers.notifications.rule=PathPrefix(`/api/notifications`)"
 
   cart:
     build:
